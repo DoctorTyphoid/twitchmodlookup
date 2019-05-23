@@ -21,7 +21,8 @@ const options = {
 };
 const client = new tmi.client(options);
 
-function ModLookup(channelName) {
+app.get("/ch/:channelName", function(req, res) {
+  var channelName = req.params.channelName;
   client.connect();
   var modList = [];
   client.on("connected", (address, port) => {
@@ -29,21 +30,14 @@ function ModLookup(channelName) {
       .mods(channelName)
       .then(data => {
         console.log(data);
-
-        client.part(channelName);
-        return data;
+        client.disconnect();
+        res.json(data);
       })
       .catch(err => {
-        console.log(err);
-        return "could not find mods!";
+        console.error(err);
+        res.send("could not find mods");
       });
   });
-}
-
-app.get("/ch/:channelName", function(req, res) {
-  var channelName = req.params.channelName;
-  console.log(ModLookup(channelName));
-  res.send(ModLookup(channelName));
 });
 
 app.get("/", (req, res) => res.send("hello world"));
